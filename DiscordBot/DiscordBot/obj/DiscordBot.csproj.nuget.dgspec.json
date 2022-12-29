@@ -1,0 +1,80 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj": {}
+  },
+  "projects": {
+    "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
+        "projectName": "DiscordBot",
+        "projectPath": "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
+        "packagesPath": "C:\\Users\\AxVol\\.nuget\\packages\\",
+        "outputPath": "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\AxVol\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net5.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "net5.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "dependencies": {
+            "Discord.Net": {
+              "target": "Package",
+              "version": "[3.9.0, )"
+            },
+            "Discord.Net.Commands": {
+              "target": "Package",
+              "version": "[3.9.0, )"
+            },
+            "Discord.Net.WebSocket": {
+              "target": "Package",
+              "version": "[3.9.0, )"
+            },
+            "Discord.Net.Webhook": {
+              "target": "Package",
+              "version": "[3.9.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.404\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
