@@ -1,10 +1,6 @@
 {
   "version": 2,
-<<<<<<< HEAD
   "dgSpecHash": "5Z8xAVPny3H0kNSk9lK8wyWR3vbIgGk1SkFMUSbvEN9FCG/0JcgDd7MjE1CwI6o1IeuyKTQbcB5QSOZApiGcfg==",
-=======
-  "dgSpecHash": "Z96EcXi7+WgbNkzFYUbvMSzWfC31h1fe6sKSmjBcKfK6ev+OUXcNs+bk3L35LT4Y8ZIpfvpwSi5uHESAnzmXBg==",
->>>>>>> main
   "success": true,
   "projectFilePath": "D:\\code\\code\\DiscordBot\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
   "expectedPackageFiles": [
