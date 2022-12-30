@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "QifSFDniiThSWZptrl8c89G+RwsXmhi9IB0gjUtzogSl1CQr30rSxm1Zf4KGYJw87cGXE7PmiER6feSM1Sn/+w==",
+  "dgSpecHash": "5Z8xAVPny3H0kNSk9lK8wyWR3vbIgGk1SkFMUSbvEN9FCG/0JcgDd7MjE1CwI6o1IeuyKTQbcB5QSOZApiGcfg==",
   "success": true,
-  "projectFilePath": "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
+  "projectFilePath": "D:\\code\\code\\DiscordBot\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\AxVol\\.nuget\\packages\\discord.net\\3.9.0\\discord.net.3.9.0.nupkg.sha512",
     "C:\\Users\\AxVol\\.nuget\\packages\\discord.net.commands\\3.9.0\\discord.net.commands.3.9.0.nupkg.sha512",
@@ -11,7 +11,8 @@
     "C:\\Users\\AxVol\\.nuget\\packages\\discord.net.rest\\3.9.0\\discord.net.rest.3.9.0.nupkg.sha512",
     "C:\\Users\\AxVol\\.nuget\\packages\\discord.net.webhook\\3.9.0\\discord.net.webhook.3.9.0.nupkg.sha512",
     "C:\\Users\\AxVol\\.nuget\\packages\\discord.net.websocket\\3.9.0\\discord.net.websocket.3.9.0.nupkg.sha512",
-    "C:\\Users\\AxVol\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\5.0.0\\microsoft.extensions.dependencyinjection.abstractions.5.0.0.nupkg.sha512",
+    "C:\\Users\\AxVol\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\7.0.0\\microsoft.extensions.dependencyinjection.7.0.0.nupkg.sha512",
+    "C:\\Users\\AxVol\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\7.0.0\\microsoft.extensions.dependencyinjection.abstractions.7.0.0.nupkg.sha512",
     "C:\\Users\\AxVol\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
     "C:\\Users\\AxVol\\.nuget\\packages\\system.collections.immutable\\5.0.0\\system.collections.immutable.5.0.0.nupkg.sha512",
     "C:\\Users\\AxVol\\.nuget\\packages\\system.interactive.async\\5.0.0\\system.interactive.async.5.0.0.nupkg.sha512",

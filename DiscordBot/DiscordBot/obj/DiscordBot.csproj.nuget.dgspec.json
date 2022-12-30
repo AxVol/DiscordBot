@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj": {}
+    "D:\\code\\code\\DiscordBot\\DiscordBot\\DiscordBot\\DiscordBot.csproj": {}
   },
   "projects": {
-    "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj": {
+    "D:\\code\\code\\DiscordBot\\DiscordBot\\DiscordBot\\DiscordBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
+        "projectUniqueName": "D:\\code\\code\\DiscordBot\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
         "projectName": "DiscordBot",
-        "projectPath": "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
+        "projectPath": "D:\\code\\code\\DiscordBot\\DiscordBot\\DiscordBot\\DiscordBot.csproj",
         "packagesPath": "C:\\Users\\AxVol\\.nuget\\packages\\",
-        "outputPath": "D:\\code\\code\\discord\\DiscordBot\\DiscordBot\\obj\\",
+        "outputPath": "D:\\code\\code\\DiscordBot\\DiscordBot\\DiscordBot\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\AxVol\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -55,6 +55,10 @@
             "Discord.Net.Webhook": {
               "target": "Package",
               "version": "[3.9.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[7.0.0, )"
             }
           },
           "imports": [
