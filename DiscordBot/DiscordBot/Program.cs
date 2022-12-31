@@ -1,10 +1,11 @@
-﻿using Discord;
+﻿using System;
+using System.Threading.Tasks;
+using System.Reflection;
+using System.Linq;
+using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace DiscordBot
 {
@@ -41,13 +42,16 @@ namespace DiscordBot
         {
             var msg = arg as SocketUserMessage;
             var context = new SocketCommandContext(client, msg);
+            var guildUsers = context.Guild.GetUsersAsync(RequestOptions.Default);
+            var usersName = context.Guild.Users.Select(user => user.Username);
             string serverName = context.Guild.Name;
-            int argPos = 0;
 
-            DateBase.CreateDateBase(serverName);
+            DateBase.CreateDataBase(serverName, usersName);
 
             if (msg.Author.IsBot)
                 return;
+
+            int argPos = 0;
 
             if (msg.HasStringPrefix("!", ref argPos))
             {
