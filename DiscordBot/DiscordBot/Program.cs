@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq;
+using System.Collections.Generic;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
@@ -15,6 +16,9 @@ namespace DiscordBot
         private CommandService commands;
         private IServiceProvider services;
 
+        string servername;
+        string username;
+
         static Task Main() => new Program().MainAsync();
 
         public async Task MainAsync()
@@ -26,9 +30,12 @@ namespace DiscordBot
 
             client = new DiscordSocketClient(config);
             client.MessageReceived += CommandsHandler;
+            client.JoinedGuild += JoinHandler;
+            client.UserJoined += UserJoinHandler;
+            client.UserLeft += UserLeftHandler;
             client.Log += Log;
 
-            string token = DateBase.GetToken();
+            string token = DataBase.GetToken();
             commands = new CommandService();
             services = new ServiceCollection().AddSingleton(client).AddSingleton(commands).BuildServiceProvider();
 
@@ -38,15 +45,51 @@ namespace DiscordBot
             await Task.Delay(-1);
         }
 
+        private async Task UserLeftHandler(SocketGuild guild, SocketUser user)
+        {
+            servername = guild.Name;
+            username = user.Username;
+
+            DataBase.DeleteUser(username, servername);
+
+            await Task.CompletedTask;
+        }
+
+        private async Task UserJoinHandler(SocketGuildUser arg)
+        {
+            servername = arg.Guild.Name;
+            username = arg.Username;
+
+            DataBase.AddUser(username, servername);
+
+            await Task.CompletedTask;
+        }
+
+        private async Task JoinHandler(SocketGuild arg)
+        {
+            var guildUsers = arg.GetUsersAsync(RequestOptions.Default);
+            var usersName = arg.Users.Select(user => user.Username);
+
+            servername = arg.Name;
+            DataBase.CreateDataBase(servername, usersName);
+
+            await Task.CompletedTask;
+        }
+
         private async Task CommandsHandler(SocketMessage arg)
         {
             var msg = arg as SocketUserMessage;
-            var context = new SocketCommandContext(client, msg);
-            var guildUsers = context.Guild.GetUsersAsync(RequestOptions.Default);
-            var usersName = context.Guild.Users.Select(user => user.Username);
-            string serverName = context.Guild.Name;
 
-            DateBase.CreateDataBase(serverName, usersName);
+            if (msg == null) return;
+            
+            var context = new SocketCommandContext(client, msg);
+            
+            servername = context.Guild.Name;
+
+            List<string> banWord = new List<string>();
+            banWord.Add("хуй");
+            banWord.Add("пизда");
+            banWord.Add("пидор");
 
             if (msg.Author.IsBot)
                 return;
@@ -62,6 +105,13 @@ namespace DiscordBot
 
                 if (result.Error.Equals(CommandError.UnmetPrecondition))
                     await msg.Channel.SendMessageAsync(result.ErrorReason);
+            }
+            else if (banWord.Contains(msg.Content.ToLower()))
+            {
+                if (DataBase.CheckBan(msg.Author.Username, servername))
+                {
+                    await context.Guild.AddBanAsync(msg.Author, 1, "Ах ты мелкий черт...");
+                }
             }
         }
 
