@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
-using System.Runtime;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
@@ -13,10 +12,12 @@ namespace DiscordBot
 {
     class Program
     {
+        // Параметры бота
         private DiscordSocketClient client;
         private CommandService commands;
         private IServiceProvider services;
 
+        // Переменные для работы с пользователями и серверами
         string servername;
         ulong userId;
 
@@ -29,6 +30,7 @@ namespace DiscordBot
                 GatewayIntents = GatewayIntents.All
             };
 
+            // Настройки клиента с подключением нужным обработчиков событий
             client = new DiscordSocketClient(config);
             client.MessageReceived += CommandsHandler;
             client.JoinedGuild += JoinHandler;
@@ -47,6 +49,7 @@ namespace DiscordBot
             await Task.Delay(-1);
         }
 
+        // Обработчик реагирущий на то, когда пользователь покинул сервер и соответственно, удаляет его из базы данных
         private async Task UserLeftHandler(SocketGuild guild, SocketUser user)
         {
             servername = guild.Name;
@@ -57,6 +60,7 @@ namespace DiscordBot
             await Task.CompletedTask;
         }
 
+        // Обработчик реагирущий на то, когда пользователь присоединился к серверу, добавляя его в базу данных
         private async Task UserJoinHandler(SocketGuildUser arg)
         {
             servername = arg.Guild.Name;
@@ -67,10 +71,12 @@ namespace DiscordBot
             await Task.CompletedTask;
         }
 
+        /* Обработчик, когда бота добавляют на сервер, он создает базу данных для сервера добавляя
+           туда всех пользователей которые были на сервере на момент его вступления */
         private async Task JoinHandler(SocketGuild arg)
         {
             var guildUsers = arg.GetUsersAsync(RequestOptions.Default);
-            var usersId = arg.Users.Select(user => user.Id);
+            var usersId = arg.Users.Select(user => user.Id); // Список айдишников всех юзеров сервера
 
             servername = arg.Name;
             DataBase.CreateDataBase(servername, usersId);
@@ -78,6 +84,7 @@ namespace DiscordBot
             await Task.CompletedTask;
         }
 
+        // Обработчик когда бота удаляют с сервера, подчищая любую с ним связь
         private async Task LeftHandler(SocketGuild arg)
         {
             servername = arg.Name;
@@ -86,8 +93,10 @@ namespace DiscordBot
             await Task.CompletedTask;
         }
 
+        // Обработчик основных команд для бота
         private async Task CommandsHandler(SocketMessage arg)
         {
+            // создание сообщения и контекста для него
             var msg = arg as SocketUserMessage;
 
             if (msg == null) return;
@@ -97,14 +106,17 @@ namespace DiscordBot
             servername = context.Guild.Name;
             userId = msg.Author.Id;
 
+            // Заглушка для тестирования запретных слов на сервере
             List<string> banWord = new List<string>();
             banWord.Add("хуй");
             banWord.Add("пизда");
             banWord.Add("пидор");
 
+            // Блокировака для бота на ответ сообщений, свои или же ему подобных 
             if (msg.Author.IsBot)
                 return;
 
+            // Обработчик команд для бота через "!", сами команды лежат в папке Commands
             int argPos = 0;
 
             if (msg.HasStringPrefix("!", ref argPos))
@@ -119,6 +131,7 @@ namespace DiscordBot
             }
             else if (banWord.Contains(msg.Content.ToLower()))
             {
+                // Заполение прогресса бана за нарушение правил сервера
                 var roles = context.Guild.Roles;
 
                 if (!IsAdministrator(userId, roles))
@@ -131,11 +144,13 @@ namespace DiscordBot
             }
             else
             {
+                // Система рангов для активных юзеров
                 if (DataBase.LevelUp(userId, servername))
                     await msg.Channel.SendMessageAsync($"Поздравляем {msg.Author.Username} с повышением уровня! *ХЛОП-ХЛОП*");
             }
         }
 
+        // Логи в консоль
         private Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.ToString());
@@ -143,6 +158,8 @@ namespace DiscordBot
             return Task.CompletedTask;
         }
 
+        /* Метод проверяющий являеться ли пользователь Администратором, чтобы бот пропускал
+           мимо них некоторые проверки, таких как блокировака за нарушение правил */        
         private bool IsAdministrator(ulong userId, IReadOnlyCollection<Discord.WebSocket.SocketRole> roles)
         {
             foreach (var role in roles)

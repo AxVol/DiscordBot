@@ -11,6 +11,7 @@ namespace DiscordBot.Commands
         {
             var user = Context.User;
             var servername = Context.Guild.Name;
+
             string sql = $"SELECT userId, count_to_ban, count_levelup, level FROM users WHERE userId = '{user.Id}'";
             int level = Convert.ToInt32(DataBase.SelectCommand(sql, servername)[3]);
 
