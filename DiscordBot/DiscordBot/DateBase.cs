@@ -39,7 +39,7 @@ namespace DiscordBot
         public static void CreateDataBase(string servername, IEnumerable usersId)
         {
             string sql;
-            string path = $"{dirName}/{servername}.db"; // Создания пути до базы данных, где название соответствует названию сервера
+            string path = $"{dirName}/{servername}/{servername}.db"; // Создания пути до базы данных, где название соответствует названию сервера
 
             FileStream f = File.Create(path);
             f.Close();
@@ -73,7 +73,7 @@ namespace DiscordBot
         // Метод отвечающий за удаление базы данных
         public static void DeleteDB(string servername)
         {
-            string path = $"{dirName}/{servername}.db";
+            string path = $"{dirName}/{servername}/{servername}.db";
 
             FileInfo f = new FileInfo(path);
             f.Delete();
@@ -83,9 +83,10 @@ namespace DiscordBot
            получает его, в ином случае, увеличивает счетчик */
         public static bool CheckBan(ulong userId, string servername)
         {
-            string sql = $"SELECT userId, count_to_ban, count_levelup, level FROM users WHERE userId = '{userId}'";
+            string sql;
 
-            ulong count = SelectCommand(sql, servername)[1];
+            List<ulong> user = GetUser(servername, userId);
+            ulong count = user[1];
             count++;
 
             if (count >= 20)
@@ -105,9 +106,9 @@ namespace DiscordBot
         }
 
         // Команда SELECT для конекта с базой, возвращает список из всех полей в таблицы соответствующее айди пользователя
-        public static List<ulong> SelectCommand(string sql, string servername)
+        private static List<ulong> SelectCommand(string sql, string servername)
         {
-            string path = $"{dirName}/{servername}.db";
+            string path = $"{dirName}/{servername}/{servername}.db";
             List<ulong> output = new List<ulong>(); // выходной список с айдишниками
 
             SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder();
@@ -138,7 +139,7 @@ namespace DiscordBot
         // Медот с отсальными SQL командами, так как они сами по себе, ничего не возвращают
         private static void SqlCommand(string sql, string servername)
         {
-            string path = $"{dirName}/{servername}.db";
+            string path = $"{dirName}/{servername}/{servername}.db";
 
             SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder();
             builder.DataSource = path;
@@ -171,10 +172,11 @@ namespace DiscordBot
         // Метод проверящий сколько активному юзеру осталось до повышения уровня, в ином случае просто повышает его поинты
         public static bool LevelUp(ulong userId, string servername)
         {
-            string sql = $"SELECT userId, count_to_ban, count_levelup, level FROM users WHERE userId = '{userId}'";
+            string sql;
 
-            ulong count = SelectCommand(sql, servername)[2];
-            int level = Convert.ToInt32(SelectCommand(sql, servername)[3]);
+            List<ulong> user = GetUser(servername, userId);
+            ulong count = user[2];
+            int level = Convert.ToInt32(user[3]);
             
             count++;
 
@@ -193,6 +195,32 @@ namespace DiscordBot
                 SqlCommand(sql, servername);
 
                 return false;
+            }
+        }
+
+        // Метод дающий список данных о пользователе сервера
+        public static List<ulong> GetUser(string servername, ulong userId)
+        {
+            string sql = $"SELECT userId, count_to_ban, count_levelup, level FROM users WHERE userId = '{userId}'";
+            List<ulong> output = SelectCommand(sql, servername);
+
+            return output;
+        }
+
+        // Метод отвечающий за получение списка запрещенных слов на данном сервере, сделанна заглушка в виде txt файла
+        public static string[] GetBanWords(string servername)
+        {
+            string path = $"{dirName}/{servername}/{servername}.txt";
+            string[] output;
+
+            using (FileStream file = new FileStream(path, FileMode.OpenOrCreate))
+            using (StreamReader reader = new StreamReader(file))
+            {
+                string temp = reader.ReadToEnd();
+                string banWord = temp.Replace(" ", ""); 
+                output = banWord.Split(',');
+
+                return output;
             }
         }
     }
