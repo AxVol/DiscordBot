@@ -97,7 +97,7 @@ namespace DiscordBot
             }
         }
 
-        private static List<ulong> SelectCommand(string sql, string servername)
+        public static List<ulong> SelectCommand(string sql, string servername)
         {
             string path = $"{dirName}/{servername}.db";
             List<ulong> output = new List<ulong>();
