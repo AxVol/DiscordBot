@@ -8,8 +8,11 @@ namespace DiscordBot
 {
     class DataBase
     {
+        // Путь до папки с базами данных, пока что заглушка ведущая в соседнею папку с исполняймым файлом
         private static readonly string dirName = "Documents";
 
+        /* Метод возвращающий токен для бота, в случае если установка бота была проведенна не коректно,
+           он создаст путь и файл в который нужно поместить токен */
         public static string GetToken()
         {
             try
@@ -32,11 +35,12 @@ namespace DiscordBot
             }
         }
 
+        // Метод, отвечающий за первичное создание базы данных и её заполнения
         public static void CreateDataBase(string servername, IEnumerable usersId)
         {
             string sql;
-            string path = $"{dirName}/{servername}.db";
-                
+            string path = $"{dirName}/{servername}.db"; // Создания пути до базы данных, где название соответствует названию сервера
+
             FileStream f = File.Create(path);
             f.Close();
 
@@ -65,7 +69,8 @@ namespace DiscordBot
                 }
             }
         }
-
+        
+        // Метод отвечающий за удаление базы данных
         public static void DeleteDB(string servername)
         {
             string path = $"{dirName}/{servername}.db";
@@ -74,6 +79,8 @@ namespace DiscordBot
             f.Delete();
         }
 
+        /* Метод проверяющий сколько пользователю осталось до бана, и если он уже достиг границы бана,
+           получает его, в ином случае, увеличивает счетчик */
         public static bool CheckBan(ulong userId, string servername)
         {
             string sql = $"SELECT userId, count_to_ban, count_levelup, level FROM users WHERE userId = '{userId}'";
@@ -81,7 +88,7 @@ namespace DiscordBot
             ulong count = SelectCommand(sql, servername)[1];
             count++;
 
-            if (count > 20)
+            if (count >= 20)
             {
                 sql = $"DELETE FROM users WHERE userId = '{userId}'";
                 SqlCommand(sql, servername);
@@ -97,10 +104,11 @@ namespace DiscordBot
             }
         }
 
+        // Команда SELECT для конекта с базой, возвращает список из всех полей в таблицы соответствующее айди пользователя
         public static List<ulong> SelectCommand(string sql, string servername)
         {
             string path = $"{dirName}/{servername}.db";
-            List<ulong> output = new List<ulong>();
+            List<ulong> output = new List<ulong>(); // выходной список с айдишниками
 
             SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder();
             builder.DataSource = path;
@@ -127,6 +135,7 @@ namespace DiscordBot
             return output;
         }
 
+        // Медот с отсальными SQL командами, так как они сами по себе, ничего не возвращают
         private static void SqlCommand(string sql, string servername)
         {
             string path = $"{dirName}/{servername}.db";
@@ -145,18 +154,21 @@ namespace DiscordBot
             }
         }
 
+        // Метод добавляющий пользователя 
         public static void AddUser(ulong userId, string servername)
         {
             string sql = $"INSERT INTO users (userId, count_to_ban, count_levelup, level) VALUES ('{userId}', 0, 0, 0)";
             SqlCommand(sql, servername);
         }
 
+        // Метод удаления пользователя
         public static void DeleteUser(ulong userId, string servername)
         {
             string sql = $"DELETE FROM users WHERE userId = '{userId}'";
             SqlCommand(sql, servername);
         }
 
+        // Метод проверящий сколько активному юзеру осталось до повышения уровня, в ином случае просто повышает его поинты
         public static bool LevelUp(ulong userId, string servername)
         {
             string sql = $"SELECT userId, count_to_ban, count_levelup, level FROM users WHERE userId = '{userId}'";
