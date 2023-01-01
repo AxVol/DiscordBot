@@ -32,12 +32,12 @@ namespace DiscordBot
             }
         }
 
-        public static void CreateDataBase(string servername, IEnumerable usersNames)
+        public static void CreateDataBase(string servername, IEnumerable usersId)
         {
             string sql;
             string path = $"{dirName}/{servername}.db";
                 
-            var f = File.Create(path);
+            FileStream f = File.Create(path);
             f.Close();
 
             SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder();
@@ -47,16 +47,16 @@ namespace DiscordBot
             {
                 connection.Open();
 
-                sql = "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, nickname TEXT, count_to_ban INTEGER, count_levelup INTEGER, level INTEGER)";
+                sql = "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, userId TEXT, count_to_ban INTEGER, count_levelup INTEGER, level INTEGER)";
 
                 using (SQLiteCommand command = new SQLiteCommand(sql, connection))
                 {
                    command.ExecuteNonQuery();
                 }
 
-                foreach (string userName in usersNames)
+                foreach (string userId in usersId)
                 {
-                    sql = $"INSERT INTO users (nickname, count_to_ban, count_levelup, level) VALUES ('{userName}', 0, 0, 0)";
+                    sql = $"INSERT INTO users (userId, count_to_ban, count_levelup, level) VALUES ('{userId}', 0, 0, 0)";
 
                     using (SQLiteCommand command = new SQLiteCommand(sql, connection))
                     {
@@ -66,33 +66,41 @@ namespace DiscordBot
             }
         }
 
-        public static bool CheckBan(string username, string servername)
+        public static void DeleteDB(string servername)
         {
-            string sql = $"SELECT nickname, count_to_ban, count_levelup, level FROM users WHERE nickname = '{username}'";
+            string path = $"{dirName}/{servername}.db";
 
-            int count = Convert.ToInt32(SelectCommand(sql, servername)[1]);
+            FileInfo f = new FileInfo(path);
+            f.Delete();
+        }
+
+        public static bool CheckBan(ulong userId, string servername)
+        {
+            string sql = $"SELECT userId, count_to_ban, count_levelup, level FROM users WHERE userId = '{userId}'";
+
+            ulong count = SelectCommand(sql, servername)[1];
             count++;
 
             if (count > 20)
             {
-                sql = $"DELETE FROM users WHERE nickname = '{username}'";
+                sql = $"DELETE FROM users WHERE userId = '{userId}'";
                 SqlCommand(sql, servername);
 
                 return true;
             }
             else
             {
-                sql = $"UPDATE users SET count_to_ban = {count} WHERE nickname = '{username}'";
+                sql = $"UPDATE users SET count_to_ban = {count} WHERE userId = '{userId}'";
                 SqlCommand(sql, servername);
 
                 return false;
             }
         }
 
-        private static List<string> SelectCommand(string sql, string servername)
+        private static List<ulong> SelectCommand(string sql, string servername)
         {
             string path = $"{dirName}/{servername}.db";
-            List<string> output = new List<string>();
+            List<ulong> output = new List<ulong>();
 
             SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder();
             builder.DataSource = path;
@@ -107,10 +115,10 @@ namespace DiscordBot
                     {
                         while (reader.Read())
                         {
-                            output.Add(reader.GetString(0));
-                            output.Add(reader.GetInt32(1).ToString());
-                            output.Add(reader.GetInt32(2).ToString());
-                            output.Add(reader.GetInt32(3).ToString());
+                            output.Add(Convert.ToUInt64(reader.GetString(0)));
+                            output.Add(Convert.ToUInt64(reader.GetInt32(1)));
+                            output.Add(Convert.ToUInt64(reader.GetInt32(2)));
+                            output.Add(Convert.ToUInt64(reader.GetInt32(3)));
                         }
                     }
                 }
@@ -137,16 +145,43 @@ namespace DiscordBot
             }
         }
 
-        public static void AddUser(string username, string servername)
+        public static void AddUser(ulong userId, string servername)
         {
-            string sql = $"INSERT INTO users (nickname, count_to_ban, count_levelup, level) VALUES ('{username}', 0, 0, 0)";
+            string sql = $"INSERT INTO users (userId, count_to_ban, count_levelup, level) VALUES ('{userId}', 0, 0, 0)";
             SqlCommand(sql, servername);
         }
 
-        public static void DeleteUser(string username, string servername)
+        public static void DeleteUser(ulong userId, string servername)
         {
-            string sql = $"DELETE FROM users WHERE nickname = '{username}'";
+            string sql = $"DELETE FROM users WHERE userId = '{userId}'";
             SqlCommand(sql, servername);
+        }
+
+        public static bool LevelUp(ulong userId, string servername)
+        {
+            string sql = $"SELECT userId, count_to_ban, count_levelup, level FROM users WHERE userId = '{userId}'";
+
+            ulong count = SelectCommand(sql, servername)[2];
+            int level = Convert.ToInt32(SelectCommand(sql, servername)[3]);
+            
+            count++;
+
+            if (count > 100)
+            {
+                level++;
+
+                sql = $"UPDATE users SET count_levelup = 0, level = {level} WHERE userId = '{userId}'";
+                SqlCommand(sql, servername);
+
+                return true;
+            }
+            else
+            {
+                sql = $"UPDATE users SET count_levelup = {count} WHERE userId = '{userId}'";
+                SqlCommand(sql, servername);
+
+                return false;
+            }
         }
     }
 }

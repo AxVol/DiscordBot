@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
+using System.Runtime;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
@@ -17,7 +18,7 @@ namespace DiscordBot
         private IServiceProvider services;
 
         string servername;
-        string username;
+        ulong userId;
 
         static Task Main() => new Program().MainAsync();
 
@@ -31,6 +32,7 @@ namespace DiscordBot
             client = new DiscordSocketClient(config);
             client.MessageReceived += CommandsHandler;
             client.JoinedGuild += JoinHandler;
+            client.LeftGuild += LeftHandler;
             client.UserJoined += UserJoinHandler;
             client.UserLeft += UserLeftHandler;
             client.Log += Log;
@@ -48,9 +50,9 @@ namespace DiscordBot
         private async Task UserLeftHandler(SocketGuild guild, SocketUser user)
         {
             servername = guild.Name;
-            username = user.Username;
+            userId = user.Id;
 
-            DataBase.DeleteUser(username, servername);
+            DataBase.DeleteUser(userId, servername);
 
             await Task.CompletedTask;
         }
@@ -58,9 +60,9 @@ namespace DiscordBot
         private async Task UserJoinHandler(SocketGuildUser arg)
         {
             servername = arg.Guild.Name;
-            username = arg.Username;
+            userId = arg.Id;
 
-            DataBase.AddUser(username, servername);
+            DataBase.AddUser(userId, servername);
 
             await Task.CompletedTask;
         }
@@ -68,10 +70,18 @@ namespace DiscordBot
         private async Task JoinHandler(SocketGuild arg)
         {
             var guildUsers = arg.GetUsersAsync(RequestOptions.Default);
-            var usersName = arg.Users.Select(user => user.Username);
+            var usersId = arg.Users.Select(user => user.Id);
 
             servername = arg.Name;
-            DataBase.CreateDataBase(servername, usersName);
+            DataBase.CreateDataBase(servername, usersId);
+
+            await Task.CompletedTask;
+        }
+
+        private async Task LeftHandler(SocketGuild arg)
+        {
+            servername = arg.Name;
+            DataBase.DeleteDB(servername);
 
             await Task.CompletedTask;
         }
@@ -85,6 +95,7 @@ namespace DiscordBot
             var context = new SocketCommandContext(client, msg);
             
             servername = context.Guild.Name;
+            userId = msg.Author.Id;
 
             List<string> banWord = new List<string>();
             banWord.Add("хуй");
@@ -108,10 +119,20 @@ namespace DiscordBot
             }
             else if (banWord.Contains(msg.Content.ToLower()))
             {
-                if (DataBase.CheckBan(msg.Author.Username, servername))
+                var roles = context.Guild.Roles;
+
+                if (!IsAdministrator(userId, roles))
                 {
-                    await context.Guild.AddBanAsync(msg.Author, 1, "Ах ты мелкий черт...");
+                    if (DataBase.CheckBan(userId, servername))
+                    {
+                        await context.Guild.AddBanAsync(msg.Author, 1, "Ах ты мелкий черт...");
+                    }
                 }
+            }
+            else
+            {
+                if (DataBase.LevelUp(userId, servername))
+                    await msg.Channel.SendMessageAsync($"Поздравляем {msg.Author.Username} с повышением уровня! *ХЛОП-ХЛОП*");
             }
         }
 
@@ -120,6 +141,22 @@ namespace DiscordBot
             Console.WriteLine(msg.ToString());
 
             return Task.CompletedTask;
+        }
+
+        private bool IsAdministrator(ulong userId, IReadOnlyCollection<Discord.WebSocket.SocketRole> roles)
+        {
+            foreach (var role in roles)
+            {
+                if (role.Permissions.Administrator)
+                {
+                    var userRole = role.Members;
+                    foreach (var user in userRole)
+                    {
+                        if (user.Id == userId) return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }
