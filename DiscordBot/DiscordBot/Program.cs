@@ -105,12 +105,7 @@ namespace DiscordBot
             
             servername = context.Guild.Name;
             userId = msg.Author.Id;
-
-            // Заглушка для тестирования запретных слов на сервере
-            List<string> banWord = new List<string>();
-            banWord.Add("хуй");
-            banWord.Add("пизда");
-            banWord.Add("пидор");
+            string[] banWord = DataBase.GetBanWords(servername);
 
             // Блокировака для бота на ответ сообщений, свои или же ему подобных 
             if (msg.Author.IsBot)
@@ -129,7 +124,8 @@ namespace DiscordBot
                 if (result.Error.Equals(CommandError.UnmetPrecondition))
                     await msg.Channel.SendMessageAsync(result.ErrorReason);
             }
-            else if (banWord.Contains(msg.Content.ToLower()))
+            // Проверка разбивающая входящее сообщение на слова и проверяет его совпадение из списка БАН слов
+            else if (banWord.Any(word => msg.Content.ToLower().Contains(word)))
             {
                 // Заполение прогресса бана за нарушение правил сервера
                 var roles = context.Guild.Roles;

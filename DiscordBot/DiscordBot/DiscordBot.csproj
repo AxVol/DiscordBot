@@ -12,6 +12,7 @@
     <PackageReference Include="Discord.Net.WebSocket" Version="3.9.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
