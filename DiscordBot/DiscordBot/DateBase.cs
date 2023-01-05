@@ -64,7 +64,7 @@ namespace DiscordBot
 
                 foreach (ulong userId in usersId)
                 {
-                    sql = $"INSERT INTO users (userId, count_to_ban, count_levelup, level) VALUES ('{userId}', 0, 0, 0)";
+                    sql = $"INSERT INTO users (userId, count_to_ban, count_levelup, level) VALUES ('{userId}', 0, 0, 1)";
 
                     using (SQLiteCommand command = new SQLiteCommand(sql, connection))
                     {
@@ -74,7 +74,7 @@ namespace DiscordBot
             }
         }
         
-        // Метод отвечающий за удаление базы данных
+        // Метод отвечающий за удаление базы данных и сопутствующих файлов
         public static void DeleteDB(string servername)
         {
             string path = $"{dirName}/{servername}";
@@ -167,7 +167,7 @@ namespace DiscordBot
         // Метод добавляющий пользователя 
         public static void AddUser(ulong userId, string servername)
         {
-            string sql = $"INSERT INTO users (userId, count_to_ban, count_levelup, level) VALUES ('{userId}', 0, 0, 0)";
+            string sql = $"INSERT INTO users (userId, count_to_ban, count_levelup, level) VALUES ('{userId}', 0, 0, 1)";
             SqlCommand(sql, servername);
         }
 
@@ -189,7 +189,7 @@ namespace DiscordBot
             
             count++;
 
-            if (count > 100)
+            if (count > 50)
             {
                 level++;
 

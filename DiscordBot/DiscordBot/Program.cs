@@ -18,9 +18,9 @@ namespace DiscordBot
         private IServiceProvider services;
 
         // Переменные для работы с пользователями и серверами
-        string servername;
-        ulong userId;
-        DateTime timeEvent = new DateTime(2023, 01, 04);
+        private string servername;
+        private ulong userId;
+        public DateTime timeEvent = new DateTime(2023, 01, 04);
 
         static Task Main() => new Program().MainAsync();
 
@@ -84,7 +84,6 @@ namespace DiscordBot
            туда всех пользователей которые были на сервере на момент его вступления */
         private async Task JoinHandler(SocketGuild arg)
         {
-            var guildUsers = arg.GetUsersAsync(RequestOptions.Default);
             var usersId = arg.Users.Select(user => user.Id); // Список айдишников всех юзеров сервера
 
             servername = arg.Name;
@@ -122,7 +121,9 @@ namespace DiscordBot
 
             // Проверка для ежедневного эвента
             if (timeEvent < DateTime.Now)
+            {
                 RandomEventForUser.StartEvent(client.Guilds);
+            }
 
             // Обработчик команд для бота через "!", сами команды лежат в папке Commands
             int argPos = 0;
@@ -153,6 +154,13 @@ namespace DiscordBot
             }
             else
             {
+                foreach (var user in msg.MentionedUsers)
+                {
+                    if (user.IsBot)
+                    {
+                        await msg.Channel.SendMessageAsync($"<@{msg.Author.Id}>, Отъебись от меня, я занят спасением этого сервака от гадов...");
+                    }
+                }
                 // Система рангов для активных юзеров
                 if (DataBase.LevelUp(userId, servername))
                     await msg.Channel.SendMessageAsync($"Поздравляем {msg.Author.Username} с повышением уровня! *ХЛОП-ХЛОП*");
