@@ -39,13 +39,17 @@ namespace DiscordBot
         public static void CreateDataBase(string servername, IEnumerable usersId)
         {
             string sql;
-            string path = $"{dirName}/{servername}/{servername}.db"; // Создания пути до базы данных, где название соответствует названию сервера
 
-            FileStream f = File.Create(path);
-            f.Close();
+            // Создания пути до базы данных, где название соответствует названию сервера
+            string directory = $"{dirName}/{servername}";
+            string path = $"/{servername}.db";
+
+            Directory.CreateDirectory(directory);
+            FileStream file = File.Create(directory + path);
+            file.Close();
 
             SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder();
-            builder.DataSource = path;
+            builder.DataSource = directory + path;
 
             using (SQLiteConnection connection = new SQLiteConnection(builder.ConnectionString))
             {
@@ -58,7 +62,7 @@ namespace DiscordBot
                    command.ExecuteNonQuery();
                 }
 
-                foreach (string userId in usersId)
+                foreach (ulong userId in usersId)
                 {
                     sql = $"INSERT INTO users (userId, count_to_ban, count_levelup, level) VALUES ('{userId}', 0, 0, 0)";
 
@@ -73,10 +77,15 @@ namespace DiscordBot
         // Метод отвечающий за удаление базы данных
         public static void DeleteDB(string servername)
         {
-            string path = $"{dirName}/{servername}/{servername}.db";
+            string path = $"{dirName}/{servername}";
+            DirectoryInfo directory = new DirectoryInfo(path);
 
-            FileInfo f = new FileInfo(path);
-            f.Delete();
+            foreach (FileInfo file in directory.GetFiles())
+            {
+                file.Delete();
+            }
+
+            directory.Delete();
         }
 
         /* Метод проверяющий сколько пользователю осталось до бана, и если он уже достиг границы бана,
