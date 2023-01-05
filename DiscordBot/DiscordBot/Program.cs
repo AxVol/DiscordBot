@@ -20,6 +20,7 @@ namespace DiscordBot
         // Переменные для работы с пользователями и серверами
         string servername;
         ulong userId;
+        DateTime timeEvent = new DateTime(2023, 01, 04);
 
         static Task Main() => new Program().MainAsync();
 
@@ -38,6 +39,7 @@ namespace DiscordBot
             client.UserJoined += UserJoinHandler;
             client.UserLeft += UserLeftHandler;
             client.Log += Log;
+            client.Connected += BotConnected;
 
             string token = DataBase.GetToken();
             commands = new CommandService();
@@ -47,6 +49,13 @@ namespace DiscordBot
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
             await Task.Delay(-1);
+        }
+
+        private Task BotConnected()
+        {
+            //timeEvent = DateTime.Now;
+
+            return Task.CompletedTask;
         }
 
         // Обработчик реагирущий на то, когда пользователь покинул сервер и соответственно, удаляет его из базы данных
@@ -111,6 +120,10 @@ namespace DiscordBot
             if (msg.Author.IsBot)
                 return;
 
+            // Проверка для ежедневного эвента
+            if (timeEvent < DateTime.Now)
+                RandomEventForUser.StartEvent(client.Guilds);
+
             // Обработчик команд для бота через "!", сами команды лежат в папке Commands
             int argPos = 0;
 
@@ -156,7 +169,7 @@ namespace DiscordBot
 
         /* Метод проверяющий являеться ли пользователь Администратором, чтобы бот пропускал
            мимо них некоторые проверки, таких как блокировака за нарушение правил */        
-        private bool IsAdministrator(ulong userId, IReadOnlyCollection<Discord.WebSocket.SocketRole> roles)
+        private static bool IsAdministrator(ulong userId, IReadOnlyCollection<Discord.WebSocket.SocketRole> roles)
         {
             foreach (var role in roles)
             {
