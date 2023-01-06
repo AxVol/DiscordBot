@@ -107,16 +107,16 @@ namespace DiscordBot
             userId = msg.Author.Id;
             string[] banWord = DataBase.GetBanWords(servername);
 
-            // Блокировака для бота на ответ сообщений, свои или же ему подобных 
+            // Блокировака для бота на ответ сообщений, своих или же ему подобных 
             if (msg.Author.IsBot)
                 return;
 
             // Проверка для ежедневного эвента
-            //if (timeEvent.Day < DateTime.Now.Day)
-            //{
-             //   RandomEventForUser.StartEvent(client.Guilds);
-             //   timeEvent = DateTime.Now;
-            //}
+            if (timeEvent.Day < DateTime.Now.Day)
+            {
+                RandomEventForUser.StartEvent(client.Guilds);
+                timeEvent = DateTime.Now;
+            }
 
             // Обработчик команд для бота через "!", сами команды лежат в папке Commands
             int argPos = 0;

@@ -33,7 +33,7 @@ namespace DiscordBot.Commands
                 return;
             }
 
-            string activity = "";
+            string activity = string.Empty;
 
             if (user.Activities.Count == 0)
             {
@@ -55,9 +55,9 @@ namespace DiscordBot.Commands
 
             await ReplyAsync($"Вот значит как, хочешь знать все о <@{user.Id}>");
             await Task.Delay(5000);
-            await ReplyAsync($"Ну значит так....\n Данное существо сейчас в {user.Status}, в народе кличат как {user.Username}, " +
+            await ReplyAsync($"Ну значит так....\nДанное существо сейчас в {user.Status}, в народе кличат как {user.Username}, " +
                 $"секретный айди - {user.Id} на пару с датой когда начался срач в дискорд - {user.CreatedAt.DateTime.ToShortDateString()}"+
-                $"\n И последнее что я могу поведать, это то, в чем зависает наш юзверь - {activity}");          
+                $"\nИ последнее что я могу поведать, это то, в чем зависает наш юзверь - {activity}");          
         }
 
         [Command("магический шар")]
