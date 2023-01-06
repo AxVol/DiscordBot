@@ -18,9 +18,9 @@ namespace DiscordBot
         private IServiceProvider services;
 
         // Переменные для работы с пользователями и серверами
-        string servername;
-        ulong userId;
-        DateTime timeEvent = new DateTime(2023, 01, 04);
+        private string servername;
+        private ulong userId;
+        public DateTime timeEvent = new DateTime(2023, 01, 04);
 
         static Task Main() => new Program().MainAsync();
 
@@ -39,7 +39,6 @@ namespace DiscordBot
             client.UserJoined += UserJoinHandler;
             client.UserLeft += UserLeftHandler;
             client.Log += Log;
-            client.Connected += BotConnected;
 
             string token = DataBase.GetToken();
             commands = new CommandService();
@@ -49,13 +48,6 @@ namespace DiscordBot
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
             await Task.Delay(-1);
-        }
-
-        private Task BotConnected()
-        {
-            //timeEvent = DateTime.Now;
-
-            return Task.CompletedTask;
         }
 
         // Обработчик реагирущий на то, когда пользователь покинул сервер и соответственно, удаляет его из базы данных
@@ -84,7 +76,6 @@ namespace DiscordBot
            туда всех пользователей которые были на сервере на момент его вступления */
         private async Task JoinHandler(SocketGuild arg)
         {
-            var guildUsers = arg.GetUsersAsync(RequestOptions.Default);
             var usersId = arg.Users.Select(user => user.Id); // Список айдишников всех юзеров сервера
 
             servername = arg.Name;
@@ -106,7 +97,7 @@ namespace DiscordBot
         private async Task CommandsHandler(SocketMessage arg)
         {
             // создание сообщения и контекста для него
-            var msg = arg as SocketUserMessage;
+            SocketUserMessage msg = arg as SocketUserMessage;
 
             if (msg == null) return;
             
@@ -116,13 +107,16 @@ namespace DiscordBot
             userId = msg.Author.Id;
             string[] banWord = DataBase.GetBanWords(servername);
 
-            // Блокировака для бота на ответ сообщений, свои или же ему подобных 
+            // Блокировака для бота на ответ сообщений, своих или же ему подобных 
             if (msg.Author.IsBot)
                 return;
 
             // Проверка для ежедневного эвента
-            if (timeEvent < DateTime.Now)
+            if (timeEvent.Day < DateTime.Now.Day)
+            {
                 RandomEventForUser.StartEvent(client.Guilds);
+                timeEvent = DateTime.Now;
+            }
 
             // Обработчик команд для бота через "!", сами команды лежат в папке Commands
             int argPos = 0;
@@ -153,6 +147,13 @@ namespace DiscordBot
             }
             else
             {
+                foreach (var user in msg.MentionedUsers)
+                {
+                    if (user.IsBot)
+                    {
+                        await msg.Channel.SendMessageAsync($"<@{msg.Author.Id}>, Отъебись от меня, я занят спасением этого сервака от гадов...");
+                    }
+                }
                 // Система рангов для активных юзеров
                 if (DataBase.LevelUp(userId, servername))
                     await msg.Channel.SendMessageAsync($"Поздравляем {msg.Author.Username} с повышением уровня! *ХЛОП-ХЛОП*");
