@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 
 namespace DiscordBot
@@ -40,7 +41,7 @@ namespace DiscordBot
                         continue;
                     }
 
-                    var textChanels = server.TextChannels;
+                    IEnumerable<SocketTextChannel> textChanels = server.TextChannels;
 
                     //Заглушка с текстовыми каналами, название канала должно браться из файла настроек пользователя *исправить*
                     foreach (var textChanel in textChanels)
@@ -74,7 +75,7 @@ namespace DiscordBot
 
         private async static void OtherActions(List<Action> actions)
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 15; i++)
             {
                 Random random = new Random();
                 int actionEvent = random.Next(0, actions.Count + 1);
@@ -88,7 +89,7 @@ namespace DiscordBot
 
         private async static void MessageOnDM(SocketGuild server, SocketGuildUser user)
         {
-            
+            throw new NotImplementedException();
         }
 
         private async static void MessageOnServer(SocketGuild server, SocketGuildUser user)

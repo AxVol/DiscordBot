@@ -39,7 +39,6 @@ namespace DiscordBot
             client.UserJoined += UserJoinHandler;
             client.UserLeft += UserLeftHandler;
             client.Log += Log;
-            client.Connected += BotConnected;
 
             string token = DataBase.GetToken();
             commands = new CommandService();
@@ -49,13 +48,6 @@ namespace DiscordBot
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
             await Task.Delay(-1);
-        }
-
-        private Task BotConnected()
-        {
-            //timeEvent = DateTime.Now;
-
-            return Task.CompletedTask;
         }
 
         // Обработчик реагирущий на то, когда пользователь покинул сервер и соответственно, удаляет его из базы данных
@@ -105,7 +97,7 @@ namespace DiscordBot
         private async Task CommandsHandler(SocketMessage arg)
         {
             // создание сообщения и контекста для него
-            var msg = arg as SocketUserMessage;
+            SocketUserMessage msg = arg as SocketUserMessage;
 
             if (msg == null) return;
             
@@ -120,10 +112,11 @@ namespace DiscordBot
                 return;
 
             // Проверка для ежедневного эвента
-            if (timeEvent < DateTime.Now)
-            {
-                RandomEventForUser.StartEvent(client.Guilds);
-            }
+            //if (timeEvent.Day < DateTime.Now.Day)
+            //{
+             //   RandomEventForUser.StartEvent(client.Guilds);
+             //   timeEvent = DateTime.Now;
+            //}
 
             // Обработчик команд для бота через "!", сами команды лежат в папке Commands
             int argPos = 0;
