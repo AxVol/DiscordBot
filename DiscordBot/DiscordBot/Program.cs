@@ -103,9 +103,23 @@ namespace DiscordBot
             
             var context = new SocketCommandContext(client, msg);
             
-            servername = context.Guild.Name;
             userId = msg.Author.Id;
             string[] banWord = DataBase.GetBanWords(servername);
+
+            /* Так как бот может писать в личку пользователям, переменая с сервером будет пустовать и выпадать с ошибкой
+            при попытке отправить пользователю сообщение */
+            try
+            {
+                servername = context.Guild.Name;
+            }
+            catch (NullReferenceException ex)
+            {
+                if (context.User.IsBot)
+                    return;
+
+                await context.Channel.SendMessageAsync("Что ты от меня хочешь? я не буду с тобой теперь общаться...ты злюка, а я бука, фыр");
+                Console.WriteLine($"Сообщение с юзером в личке - {ex.Message}");
+            }
 
             // Блокировака для бота на ответ сообщений, своих или же ему подобных 
             if (msg.Author.IsBot)
