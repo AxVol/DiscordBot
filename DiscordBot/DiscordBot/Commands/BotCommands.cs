@@ -22,7 +22,7 @@ namespace DiscordBot.Commands
         public async Task SayHello()
         {
             await ReplyAsync("https://tenor.com/view/gifts-gif-19920977");
-        }
+        }   
 
         [Command("инфа о")]
         public async Task GetInfoUser(IUser user)
@@ -63,7 +63,7 @@ namespace DiscordBot.Commands
         [Command("магический шар")]
         public async Task MagicBall(params string[] args)
         {
-            int messageLength = args.Length - 1;
+            int messageidex = args.Length - 1;
             List<string> answer = new List<string> { "Я так не думаю", "Конечно :sunglasses:", "НЕТ", "ДА", "Отрицаю",
                                                    "Полностью с тобой согласен", "Да что ты говоришь... https://media.tenor.com/ajfPIbGLpa0AAAAM/interesting-charlie-and-the-chocolate-factory.gif",
                                                    ":clown:", "Хм...:thinking:", "https://media.tenor.com/Z0A3V-aC7T8AAAAM/gachi.gif",
@@ -72,9 +72,9 @@ namespace DiscordBot.Commands
                                                    "Пойдем выйдем за такие вопросы... https://media.tenor.com/Dx8XeOcQDpUAAAAM/gachi-gachi-muchi.gif",
                                                    "https://media.tenor.com/zXKPbuZpW0IAAAAM/memeblog-gachi.gif"};
             Random random = new Random();
-            int choiceAnswer = random.Next(0, answer.Count + 1);
+            int choiceAnswer = random.Next(0, answer.Count);
 
-            if (args[messageLength].EndsWith('?'))
+            if (args[messageidex].EndsWith('?'))
             {
                 await ReplyAsync(answer[choiceAnswer]);
             }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.IO;
 using Discord;
 using Discord.WebSocket;
 
@@ -22,10 +21,13 @@ namespace DiscordBot
             "https://media.tenor.com/CtiUeUsRVT8AAAAM/fortnite-%D0%BB%D0%BE%D1%85.gif", "https://media.tenor.com/jL70RMxQlTkAAAAM/mute-kaneki.gif",
             "https://media.tenor.com/PGMRXfJxtAQAAAAM/hi-nobu.gif", "https://media.tenor.com/6BYfHK6j-4oAAAAM/tina-templeton-baby.gif"};
 
-        private static readonly List<string> serverMessage = new List<string> {"{love}", "Зачем мне это в личке? https://media.tenor.com/dI9cw1d3VNgAAAAM/chris-evans-captain-america.gif",
+        private static readonly List<string> serverMessage = new List<string> {"{love}", 
+            "Зачем такое скидывать в личку? https://media.tenor.com/dI9cw1d3VNgAAAAM/chris-evans-captain-america.gif",
             "Слышь...", "Пошли ебаться) :kissing_heart:", ":clown: :clown: :clown:", "Лошара",
             "Слушай, тут одно тусовка намечается, ты же любишь? https://media.tenor.com/Mb9DB6cucGYAAAAM/gachi.gif",
             "https://media.tenor.com/FiyhE4ITwdkAAAAM/better-ttv-twitch.gif"};
+
+        private static Random random = new Random();
 
         // Начало эвента для случайного пользователя с сервера
         public static void StartEvent(IReadOnlyCollection<SocketGuild> servers)
@@ -40,8 +42,7 @@ namespace DiscordBot
         private async static void FirstStage(SocketGuild server)
         {
             IEnumerable<SocketGuildUser> users = server.Users.Select(user => user);
-            Random random = new Random();
-            int userEvent = random.Next(0, users.Count() + 1);
+            int userEvent = random.Next(0, users.Count());
             int counter = 0;
 
             // перебор всех юзеров с сервера для выбора избранного на сегодняшний день
@@ -51,18 +52,15 @@ namespace DiscordBot
                 {
                     if (user.IsBot)
                     {
-                        userEvent = random.Next(0, users.Count() + 1);
-                        counter = 0;
-
-                        continue;
+                        FirstStage(server);
+                        return;
                     }
 
                     IEnumerable<SocketTextChannel> textChanels = server.TextChannels;
 
-                    //Заглушка с текстовыми каналами, название канала должно браться из файла настроек пользователя *исправить*
                     foreach (var textChanel in textChanels)
                     {
-                        if (textChanel.Name == "general")
+                        if (textChanel.Name == "general") //Заглушка с текстовыми каналами, название канала должно браться из файла настроек пользователя *исправить*
                         {
                             await textChanel.SendMessageAsync("Ого, сегодня моей целью станет...");
                             await Task.Delay(5000);
@@ -72,9 +70,9 @@ namespace DiscordBot
 
                             // Список с действиями бота
                             List<Action> actions = new List<Action>();
-                            actions.Add(() => MessageOnServer(server, user));
+                            //actions.Add(() => MessageOnServer(server, user));
                             actions.Add(() => MessageOnDM(server, user));
-                            actions.Add(() => SpamMentioned(server, user));
+                            //actions.Add(() => SpamMentioned(server, user));
 
                             OtherActions(actions, server, user);
                         }
@@ -84,51 +82,46 @@ namespace DiscordBot
             }
         }
 
-        // Метод отвечайщий за правильную последовательность действия бота с юзером, разбитом в рандомном порядке
+        // Метод отвечайщий за правильную последовательность действий бота с юзером, разбитом в рандомном порядке
         private async static void OtherActions(List<Action> actions, SocketGuild server, SocketGuildUser user)
         {
-            for (int i = 0; i < 15; i++)
+            for (int actionCount = 0; actionCount <= 20; actionCount++)
             {
-                Random random = new Random();
-                int actionEvent = random.Next(0, actions.Count + 1);
-                int delayBetweenEvent = random.Next(300000, 3600000);
+                int actionEvent = 0; //random.Next(0, actions.Count);
+                int delayBetweenEvent = random.Next(100000, 200000); // 300000, 1800000 диапазон в милисекундах от 3 минут до 30
 
                 actions[actionEvent]();
 
                 await Task.Delay(delayBetweenEvent);
             }
-
-            Kick(server, user);
+            Kick(server, user);  //Как на закуску, кик пользователя с сервера, с приглашением его обратно через пару часов
         }
 
         // Эвенты, их набора - Спам в личку юзера, Спам по нему на сервере, и на конец, кик с сервера
         private async static void MessageOnDM(SocketGuild server, SocketGuildUser user)
         {
-            FileStream file;
             string path;
-            Random random = new Random();
+            string messageForUser;
 
             for (int i = 0; i <= 5; i++)
             {
                 int delay = random.Next(2000, 5000);
-                int choice = random.Next(0, directMessage.Count + 1);
+                int choice = random.Next(0, directMessage.Count);
                 string message = directMessage[choice];
 
                 switch (message)
                 {
                     case "file_lox":
                         path = "event/mymindforu.exe";
-                        file = new FileStream(path, FileMode.Open);
-
-                        await user.SendFileAsync(file, "Впрочем, этот файл говорит все мое мнение о тебе...");
-                        file.Close();
+                        messageForUser = "Впрочем, этот файл говорит все мое мнение о тебе...";
+                        await user.SendMessageAsync(messageForUser);
+                        await user.SendFileAsync(path, messageForUser);
                         break;
                     case "file_sorry":
                         path = "event/sorry.exe";
-                        file = new FileStream(path, FileMode.Open);
-
-                        await user.SendFileAsync(file, "Ладно, извини меня что потревожил :cry:");
-                        file.Close();
+                        messageForUser = "Ладно, извини меня что потревожил :cry:";
+                        await user.SendMessageAsync(messageForUser);
+                        await user.SendFileAsync(path, messageForUser);
                         break;
                     case "{user}":
                         await user.SendMessageAsync(user.Mention);
@@ -143,23 +136,21 @@ namespace DiscordBot
 
         private async static void MessageOnServer(SocketGuild server, SocketGuildUser user)
         {
-            Random random = new Random();
-
             for (int i = 0; i <= 3; i++)
             {
                 int delay = random.Next(1000, 3000);
-                int choice = random.Next(0, serverMessage.Count + 1);
+                int choice = random.Next(0, serverMessage.Count);
                 string message = serverMessage[choice];
 
                foreach (var textChannel in server.TextChannels)
                 {
-                    if (textChannel.Name == "general")
+                    if (textChannel.Name == "general") //исправить на добавление из файла
                     {
                         switch (message)
                         {
                             case "{love}":
                                 IReadOnlyCollection<SocketGuildUser> users = textChannel.Users;
-                                int userChoices = random.Next(0, users.Count + 1);
+                                int userChoices = random.Next(0, users.Count);
                                 int couter = 0;
                                 
                                 foreach (SocketGuildUser guildUser in users)
@@ -185,7 +176,7 @@ namespace DiscordBot
         {
             foreach (var textChannel in server.TextChannels)
             {
-                if (textChannel.Name == "general")
+                if (textChannel.Name == "general") //исправить на добавление из файла
                 {
                     await textChannel.SendMessageAsync($"{user.Mention}");
                     await Task.Delay(1000);
