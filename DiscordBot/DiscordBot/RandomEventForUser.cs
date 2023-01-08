@@ -13,11 +13,11 @@ namespace DiscordBot
            Смысл этого эвента в том, что бот каждый день выбирает случайного человека и начинает ему докучать разными
            способами, пишет в личку, кидает картинки, постоянно тегает человека и так далее */
 
-        // Список с фразами для спама в личку и сервер чат
+        // Список с фразами для спама в личку и чат сервера
         private static readonly List<string> directMessage = new List<string> {"Ты лох", ":clown: :clown: :clown:",
             "Слушай...тут просили передать, что ты пидорок","{user}", ":sunglasses: :sunglasses: :sunglasses:", "Разрешите доебаться?", 
             "https://media.tenor.com/Z0A3V-aC7T8AAAAM/gachi.gif", "https://media.tenor.com/sF0Eyj9Hjx4AAAAM/gachi.gif", 
-            "file_lox", "file_sorry", "https://media.tenor.com/ZoulznUJfIUAAAAM/van-darkholme-what.gif",
+            "file_lox", "file_sorry", "{server}", "https://media.tenor.com/ZoulznUJfIUAAAAM/van-darkholme-what.gif",
             "https://media.tenor.com/CtiUeUsRVT8AAAAM/fortnite-%D0%BB%D0%BE%D1%85.gif", "https://media.tenor.com/jL70RMxQlTkAAAAM/mute-kaneki.gif",
             "https://media.tenor.com/PGMRXfJxtAQAAAAM/hi-nobu.gif", "https://media.tenor.com/6BYfHK6j-4oAAAAM/tina-templeton-baby.gif"};
 
@@ -27,7 +27,7 @@ namespace DiscordBot
             "Слушай, тут одно тусовка намечается, ты же любишь? https://media.tenor.com/Mb9DB6cucGYAAAAM/gachi.gif",
             "https://media.tenor.com/FiyhE4ITwdkAAAAM/better-ttv-twitch.gif"};
 
-        private static Random random = new Random();
+        private readonly static Random random = new Random();
 
         // Начало эвента для случайного пользователя с сервера
         public static void StartEvent(IReadOnlyCollection<SocketGuild> servers)
@@ -70,9 +70,9 @@ namespace DiscordBot
 
                             // Список с действиями бота
                             List<Action> actions = new List<Action>();
-                            //actions.Add(() => MessageOnServer(server, user));
+                            actions.Add(() => MessageOnServer(server, user));
                             actions.Add(() => MessageOnDM(server, user));
-                            //actions.Add(() => SpamMentioned(server, user));
+                            actions.Add(() => SpamMentioned(server, user));
 
                             OtherActions(actions, server, user);
                         }
@@ -87,8 +87,8 @@ namespace DiscordBot
         {
             for (int actionCount = 0; actionCount <= 20; actionCount++)
             {
-                int actionEvent = 0; //random.Next(0, actions.Count);
-                int delayBetweenEvent = random.Next(100000, 200000); // 300000, 1800000 диапазон в милисекундах от 3 минут до 30
+                int actionEvent = random.Next(0, actions.Count); 
+                int delayBetweenEvent = random.Next(300000, 1800000); // Диапазон в милисекундах от 3 минут до 30
 
                 actions[actionEvent]();
 
@@ -105,26 +105,27 @@ namespace DiscordBot
 
             for (int i = 0; i <= 5; i++)
             {
-                int delay = random.Next(2000, 5000);
+                int delay = random.Next(20000, 50000);
                 int choice = random.Next(0, directMessage.Count);
                 string message = directMessage[choice];
 
-                switch (message)
+                switch (message) // Свич для перебора специальных эвентов отличным по сигнатуре от остальных
                 {
                     case "file_lox":
                         path = "event/mymindforu.exe";
                         messageForUser = "Впрочем, этот файл говорит все мое мнение о тебе...";
-                        await user.SendMessageAsync(messageForUser);
                         await user.SendFileAsync(path, messageForUser);
                         break;
                     case "file_sorry":
                         path = "event/sorry.exe";
                         messageForUser = "Ладно, извини меня что потревожил :cry:";
-                        await user.SendMessageAsync(messageForUser);
                         await user.SendFileAsync(path, messageForUser);
                         break;
                     case "{user}":
                         await user.SendMessageAsync(user.Mention);
+                        break;
+                    case "{server}":
+                        await user.SendMessageAsync($"Слышь, прояви хоть каплю уважения и зайди хоть раз на сервер... {server.Name}");
                         break;
                     default:
                         await user.SendMessageAsync(message);
@@ -138,7 +139,7 @@ namespace DiscordBot
         {
             for (int i = 0; i <= 3; i++)
             {
-                int delay = random.Next(1000, 3000);
+                int delay = random.Next(10000, 30000);
                 int choice = random.Next(0, serverMessage.Count);
                 string message = serverMessage[choice];
 
@@ -146,7 +147,7 @@ namespace DiscordBot
                 {
                     if (textChannel.Name == "general") //исправить на добавление из файла
                     {
-                        switch (message)
+                        switch (message) // Свич для перебора специальных эвентов отличным по сигнатуре от остальных
                         {
                             case "{love}":
                                 IReadOnlyCollection<SocketGuildUser> users = textChannel.Users;
@@ -200,19 +201,32 @@ namespace DiscordBot
 
         private async static void Kick(SocketGuild server, SocketGuildUser user)
         {
-            string inviteUrl = string.Empty;
-
-            foreach (var textChannel in server.TextChannels)
+            if (!Program.IsAdministrator(user.Id, server.Roles))
             {
-                if (textChannel.Name == "general")
+                string inviteUrl = string.Empty;
+
+                foreach (var textChannel in server.TextChannels)
                 {
-                    inviteUrl = textChannel.CreateInviteAsync().ToString();
+                    if (textChannel.Name == "general")
+                    {
+                        inviteUrl = textChannel.CreateInviteAsync().ToString();
+                    }
+                }
+
+                await user.KickAsync();
+                await Task.Delay(600000);
+                await user.SendMessageAsync($"Ладно, ладно, мы тебя все любим <3, возвращайся если ещё не вернулся {inviteUrl}");
+            }
+            else
+            {
+                foreach (var textChannel in server.TextChannels)
+                {
+                    if (textChannel.Name == "general")
+                    {
+                        await textChannel.SendMessageAsync($"{user.Mention} Кикнуть бы тебя по хорошему, но ты админ-мусорской...");
+                    }
                 }
             }
-
-            await user.KickAsync();
-            await Task.Delay(600000);
-            await user.SendMessageAsync($"Ладно, ладно, мы тебя все любим <3, возвращайся если ещё не вернулся {inviteUrl}");
         }
     }
 }

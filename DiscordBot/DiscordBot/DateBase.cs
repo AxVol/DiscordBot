@@ -31,6 +31,7 @@ namespace DiscordBot
             }
             catch
             {
+                Console.WriteLine("Ошибка токена, проверьте его правильность");
                 return "";
             }
         }
@@ -186,10 +187,14 @@ namespace DiscordBot
             List<ulong> user = GetUser(servername, userId);
             ulong count = user[2];
             int level = Convert.ToInt32(user[3]);
-            
+
+            // Система увелечения порога уровня в зависимости от его велечины
+            int basicCount = 50;
+            int levelThreshold = basicCount * level / 2;
+
             count++;
 
-            if (count > 50)
+            if (count > Convert.ToUInt64(levelThreshold))
             {
                 level++;
 

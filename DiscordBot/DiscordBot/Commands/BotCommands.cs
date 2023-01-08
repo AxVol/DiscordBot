@@ -8,6 +8,7 @@ namespace DiscordBot.Commands
 {
     public class BotCommands : ModuleBase<SocketCommandContext>
     {
+        // Команда выдающая уровень активности пользователя из базы данных
         [Command("уровень")]
         public async Task GetMyId()
         {
@@ -24,6 +25,7 @@ namespace DiscordBot.Commands
             await ReplyAsync("https://tenor.com/view/gifts-gif-19920977");
         }   
 
+        // Команда которая выдает интересные параметры из профеля запрашиваемого юзера через его тэг "@"
         [Command("инфа о")]
         public async Task GetInfoUser(IUser user)
         {
@@ -33,6 +35,7 @@ namespace DiscordBot.Commands
                 return;
             }
 
+            // Обработка события, если отображения активности у пользователя отключена
             string activity = string.Empty;
 
             if (user.Activities.Count == 0)
@@ -60,6 +63,7 @@ namespace DiscordBot.Commands
                 $"\nИ последнее что я могу поведать, это то, в чем зависает наш юзверь - {activity}");          
         }
 
+        // Команда магического шара, которая на вопрос выдает случайный ответ из списка
         [Command("магический шар")]
         public async Task MagicBall(params string[] args)
         {
@@ -71,7 +75,7 @@ namespace DiscordBot.Commands
                                                    "https://media.tenor.com/BSYeNq2POsQAAAAM/gachimuchi.gif", 
                                                    "Пойдем выйдем за такие вопросы... https://media.tenor.com/Dx8XeOcQDpUAAAAM/gachi-gachi-muchi.gif",
                                                    "https://media.tenor.com/zXKPbuZpW0IAAAAM/memeblog-gachi.gif"};
-            Random random = new Random();
+            Random random = new();
             int choiceAnswer = random.Next(0, answer.Count);
 
             if (args[messageidex].EndsWith('?'))

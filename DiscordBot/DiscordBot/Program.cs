@@ -112,20 +112,19 @@ namespace DiscordBot
             {
                 servername = context.Guild.Name;
             }
-            catch (NullReferenceException ex)
+            catch
             {
                 if (context.User.IsBot)
                     return;
 
                 await context.Channel.SendMessageAsync("Что ты от меня хочешь? я не буду с тобой теперь общаться...ты злюка, а я бука, фыр");
-                Console.WriteLine($"Сообщение с юзером в личке - {ex.Message}");
             }
 
             // Блокировака для бота на ответ сообщений, своих или же ему подобных 
             if (msg.Author.IsBot)
                 return;
 
-            // Проверка для ежедневного эвента
+            // Проверка для ежедневного эвента всех подключенных серверов
             if (timeEvent.Day < DateTime.Now.Day)
             {
                 RandomEventForUser.StartEvent(client.Guilds);
@@ -148,7 +147,6 @@ namespace DiscordBot
             // Проверка разбивающая входящее сообщение на слова и проверяет его совпадение из списка БАН слов
             else if (banWord.Any(word => msg.Content.ToLower().Contains(word)))
             {
-                // Заполение прогресса бана за нарушение правил сервера
                 var roles = context.Guild.Roles;
 
                 if (!IsAdministrator(userId, roles))
@@ -174,17 +172,9 @@ namespace DiscordBot
             }
         }
 
-        // Логи в консоль
-        private Task Log(LogMessage msg)
-        {
-            Console.WriteLine(msg.ToString());
-
-            return Task.CompletedTask;
-        }
-
         /* Метод проверяющий являеться ли пользователь Администратором, чтобы бот пропускал
            мимо них некоторые проверки, таких как блокировака за нарушение правил */        
-        private static bool IsAdministrator(ulong userId, IReadOnlyCollection<Discord.WebSocket.SocketRole> roles)
+        public static bool IsAdministrator(ulong userId, IReadOnlyCollection<Discord.WebSocket.SocketRole> roles)
         {
             foreach (var role in roles)
             {
@@ -198,6 +188,13 @@ namespace DiscordBot
                 }
             }
             return false;
+        }
+
+        private Task Log(LogMessage msg)
+        {
+            Console.WriteLine(msg.ToString());
+
+            return Task.CompletedTask;
         }
     }
 }
